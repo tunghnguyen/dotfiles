@@ -37,7 +37,7 @@ require("lualine").setup {
 
 -- Syntax highlighting
 require("nvim-treesitter.configs").setup {
-	ensure_installed = { "c", "cpp", "lua", "rust", "python", "haskell" },
+	ensure_installed = { "c", "cpp", "make", "lua", "rust", "python", "haskell" },
 	sync_install = true,
 	highlight = {
 		enable = true,
