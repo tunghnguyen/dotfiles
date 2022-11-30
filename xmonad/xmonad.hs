@@ -9,6 +9,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.Spacing
+import XMonad.Util.Cursor
 import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
 
@@ -276,6 +277,8 @@ myStartupHook = do
 	spawnOnce "xss-lock -n /usr/lib/xsecurelock/dimmer -l -- xsecurelock"
 	spawnOnce "~/.fehbg"
 	spawnOnce "xbanish"
+	spawnOnce "easyeffects --gapplication-service"
+	setDefaultCursor xC_left_ptr
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

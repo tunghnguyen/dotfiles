@@ -1,7 +1,7 @@
 Config { 
 
    -- appearance
-     font =         "xft:Fira Code:size=10:bold:antialias=true"
+     font =         "xft:Fira Code:size=11:bold:antialias=true"
    , bgColor =      "black"
    , fgColor =      "#646464"
    , alpha =	    180
