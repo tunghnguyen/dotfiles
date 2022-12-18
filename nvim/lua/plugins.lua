@@ -4,22 +4,22 @@ return require("packer").startup(function(use)
     use
     {
         -- Packer manages itself
-		{ 'wbthomason/packer.nvim' },
+		{ "wbthomason/packer.nvim" },
 
 		-- Faster loading
-		{ 'nathom/filetype.nvim' },
-		{ 'lewis6991/impatient.nvim' },
+		{ "nathom/filetype.nvim" },
+		{ "lewis6991/impatient.nvim" },
 
 		-- Colorscheme
-		{ 'navarasu/onedark.nvim' },
+		{ "navarasu/onedark.nvim" },
 
 		-- Status line
-		{ 'nvim-lualine/lualine.nvim' },
+		{ "nvim-lualine/lualine.nvim" },
 
         -- Syntax highlighting
-		{ 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' },
+		{ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" },
 
         -- Powerful autopair
-		{ 'windwp/nvim-autopairs' },
+		{ "windwp/nvim-autopairs" },
     }
 end)

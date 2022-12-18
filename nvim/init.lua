@@ -1,52 +1,49 @@
+-- Keybinds
+require("binds")
+
 -- Plugins
 require("plugins")
 require("impatient")
 
--- Keybinds
-require("binds")
-
 -- Colorscheme
-local onedark = require("onedark")
-onedark.setup {
-	transparent = true,
-	code_style = {
-		comments = "none"
-	},
+require("onedark").setup {
+    transparent = true,
+    lualine = {
+        transparent = true,
+    }
 }
-onedark.load()
+require("onedark").load()
 
 -- Status line
-local custom_onedark = require("lualine.themes.onedark")
-custom_onedark.normal.c.bg = nil
 require("lualine").setup {
-	options = {
-		theme = custom_onedark,
-		icons_enabled = false,
-	},
-	sections = {
-		lualine_a = {
-			{ "mode", fmt = function(str) return str:sub(1,1) end }
-		},
-		lualine_b = { "branch" },
+    options = {
+        theme = onedark,
+        icons_enabled = false,
+    },
+    sections = {
+        lualine_a = {
+            { "mode", fmt = function(str) return str:sub(1,1) end }
+        },
+        lualine_b = { "branch" },
         lualine_c = { "filename" },
-		lualine_x = { },
+        lualine_x = { },
         lualine_y = { "filetype" },
         lualine_z = { "location" },
-	},
+    },
 }
 
 -- Syntax highlighting
 require("nvim-treesitter.configs").setup {
-	ensure_installed = { 
+    ensure_installed = { 
         "c", "cpp", "make", "cmake", "lua", "rust", "python", "haskell"
     },
-	sync_install = true,
-	highlight = {
-		enable = true,
-	},
-	indent = {
-		enable = true
-	}
+    sync_install = true,
+    highlight = {
+        enable = true,
+    },
+    indent = {
+        enable = true
+    }
 }
 
 -- Autopair
