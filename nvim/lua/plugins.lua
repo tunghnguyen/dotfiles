@@ -11,7 +11,7 @@ return require("packer").startup(function(use)
 		{ "lewis6991/impatient.nvim" },
 
 		-- Colorscheme
-		{ "navarasu/onedark.nvim" },
+        { "catppuccin/nvim", as = "catppuccin" },
 
 		-- Status line
 		{ "nvim-lualine/lualine.nvim" },

@@ -6,18 +6,18 @@ require("plugins")
 require("impatient")
 
 -- Colorscheme
-require("onedark").setup {
-    transparent = true,
+require("catppuccin").setup {
+    flavour = "mocha",
+    transparent_background = true,
     lualine = {
         transparent = true,
     }
 }
-require("onedark").load()
+vim.cmd.colorscheme("catppuccin")
 
 -- Status line
 require("lualine").setup {
     options = {
-        theme = onedark,
         icons_enabled = false,
     },
     sections = {
@@ -67,7 +67,6 @@ vim.opt.numberwidth = 4
 vim.opt.mouse = "a"
 
 -- Generic settings
-vim.opt.termguicolors = true
 vim.opt.splitright = true
 vim.opt.showmode = false
 vim.opt.scrolloff = 8
