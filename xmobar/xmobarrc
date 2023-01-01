@@ -2,15 +2,15 @@ Config {
 
    -- appearance
      font =         "xft:Fira Code:size=11:bold:antialias=true"
-   , bgColor =      "black"
-   , fgColor =      "#646464"
+   , bgColor =      "#000000"
+   , fgColor =      "#CDD6F4"
    , alpha =	    0
    , position =     Top
 
    -- layout
    , sepChar =  "%"   -- delineator between plugin names and straight text
    , alignSep = "}{"  -- separator between left-right alignment
-   , template = " %multicpu% | %coretemp% | %memory% | %dynnetwork% } %date% { %kbd% | %battery% "
+   , template = " %XMonadLog% } %date% { %kbd% | %battery% "
 
    -- general behavior
    , lowerOnStart =     True    -- send to bottom of window stack on start
@@ -34,72 +34,38 @@ Config {
    --   The --template option controls how the plugin is displayed. Text
    --   color can be set by enclosing in <fc></fc> tags. For more details
    --   see http://projects.haskell.org/xmobar/#system-monitor-plugins.
-   , commands = 
-
-        -- weather monitor
-        [ Run Weather "RJTT" [ "--template", "<skyCondition> | <fc=#4682B4><tempC></fc>°C | <fc=#4682B4><rh></fc>% | <fc=#4682B4><pressure></fc>hPa"
-                             ] 36000
-
-        -- network activity monitor (dynamic interface resolution)
-        , Run DynNetwork     [ "--template" , "<dev>: <tx>kB/s|<rx>kB/s"
-                             , "--Low"      , "1000"       -- units: B/s
-                             , "--High"     , "5000"       -- units: B/s
-                             , "--low"      , "darkgreen"
-                             , "--normal"   , "darkorange"
-                             , "--high"     , "darkred"
-                             ] 10
-
-        -- cpu activity monitor
-        , Run MultiCpu       [ "--template" , "Cpu: <total0>%|<total1>%"
-                             , "--Low"      , "50"         -- units: %
-                             , "--High"     , "85"         -- units: %
-                             , "--low"      , "darkgreen"
-                             , "--normal"   , "darkorange"
-                             , "--high"     , "darkred"
-                             ] 10
-
-        -- cpu core temperature monitor
-        , Run CoreTemp       [ "--template" , "Temp: <core0>°C|<core1>°C"
-                             , "--Low"      , "70"        -- units: °C
-                             , "--High"     , "80"        -- units: °C
-                             , "--low"      , "darkgreen"
-                             , "--normal"   , "darkorange"
-                             , "--high"     , "darkred"
-                             ] 50
-                          
-        -- memory usage monitor
-        , Run Memory         [ "--template" ,"Mem: <usedratio>%"
-                             , "--Low"      , "20"        -- units: %
-                             , "--High"     , "90"        -- units: %
-                             , "--low"      , "darkgreen"
-                             , "--normal"   , "darkorange"
-                             , "--high"     , "darkred"
-                             ] 10
+   , commands = [
 
         -- battery monitor
-        , Run Battery        [ "--template" , "Batt: <acstatus>"
-                             , "--Low"      , "10"        -- units: %
-                             , "--High"     , "80"        -- units: %
-                             , "--low"      , "darkred"
-                             , "--normal"   , "darkorange"
-                             , "--high"     , "darkgreen"
+        Run Battery        
+            [ "--template" , "Batt: <acstatus>"
+            , "--Low"      , "25"        -- units: %
+            , "--High"     , "75"        -- units: %
+            , "--low"      , "#F38BA8"
+            , "--normal"   , "#F9E2AF"
+            , "--high"     , "#A6E3A1"
 
-                             , "--" -- battery specific options
-                                       -- discharging status
-                                       , "-o"	, "<left>% (<timeleft>)"
-                                       -- AC "on" status
-                                       , "-O"	, "<fc=#dAA520>Charging</fc>"
-                                       -- charged status
-                                       , "-i"	, "<fc=#006000>Charged</fc>"
-                             ] 50
-
+            , "--" -- battery specific options
+                -- discharging status
+                , "-o"	, "<left>% (<timeleft>)"
+                -- AC "on" status
+                , "-O"	, "<fc=#F9E2AF>Charging</fc>"
+                -- charged status
+                , "-i"	, "<fc=#A6E3A1>Charged</fc>"
+            ] 50
+      
         -- time and date indicator 
         --   (%F = y-m-d date, %R = h:m time)
         , Run Date           "<fc=#FFFFFF>%F %R</fc>" "date" 50
 
         -- keyboard layout indicator
-        , Run Kbd            [ ("us(dvorak)" , "<fc=#00008B>DV</fc>")
-                             , ("us"         , "<fc=#8B0000>US</fc>")
+        , Run Kbd            [ ("us(dvorak)" , "<fc=#89B4FA>DV</fc>")
+                             , ("us"         , "<fc=#F38BA8>US</fc>")
                              ]
+
+        -- talk with xmonad
+        , Run XMonadLog
+
         ]
+        
    }

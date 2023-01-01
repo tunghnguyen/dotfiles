@@ -5,11 +5,18 @@
 import XMonad
 import Data.Monoid
 import System.Exit
+import XMonad.Hooks.DynamicIcons
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP
+import XMonad.Hooks.WindowSwallowing
 import XMonad.Layout.NoBorders
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.Spacing
 import XMonad.Util.Cursor
+import XMonad.Util.Loggers
 import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
 
@@ -51,12 +58,12 @@ myModMask       = mod4Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
-myWorkspaces    = ["1","2","3","4","5","6","7","8","9"]
+myWorkspaces    = [ " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 ", " 9 " ]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#abb2bf"
-myFocusedBorderColor = "#61afef"
+myNormalBorderColor  = "#45475a"
+myFocusedBorderColor = "#89b4fa"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -67,7 +74,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
     -- launch rofi
-    , ((modm,               xK_p     ), spawn "rofi -show drun")
+    , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/type-7/launcher.sh")
 
     -- launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
@@ -103,7 +110,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
 
     -- Set window to full screen
-    , ((modm,		    xK_f     ), sendMessage ToggleLayout)
+    , ((modm,		        xK_f     ), sendMessage ToggleLayout)
 
     -- Resize viewed windows to the correct size
     , ((modm,               xK_n     ), refresh)
@@ -148,7 +155,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
     --
-    -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
+    , ((modm              , xK_b     ), sendMessage ToggleStruts)
 
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
@@ -209,9 +216,11 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-mySpacing = spacingRaw False (Border 0 0 3 3) True (Border 0 6 3 3) True
-myLayout = mySpacing $ avoidStruts $ tiled ||| Mirror tiled
+myLayout = lessBorders Screen $ toggleLayouts Full (mySpacing $ tiled ||| Mirror tiled)
   where
+     -- custom spacing   
+     mySpacing = spacingRaw False (Border 0 0 3 3) True (Border 0 6 3 3) True
+
      -- default tiling algorithm partitions the screen into two panes
      tiled   = Tall nmaster delta ratio
 
@@ -254,7 +263,7 @@ myManageHook = composeAll
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myEventHook = mempty
+myEventHook = swallowEventHook (className =? "Alacritty") (return True)
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -286,9 +295,41 @@ myStartupHook = do
 
 -- Run xmonad with the settings you specify. No need to modify this.
 --
-main = do
-	xmproc <- spawnPipe "xmobar -x 0 /home/quask/.config/xmobar/xmobarrc"
-	xmonad $ docks defaults
+main :: IO ()
+main = xmonad
+     . ewmhFullscreen
+     . ewmh
+     . withEasySB (statusBarProp "xmobar" (pure myXmobarPP)) defToggleStrutsKey
+     $ docks defaults
+
+-- Configure xmobar
+--
+myXmobarPP :: PP
+myXmobarPP = def
+    { ppSep             = magenta " • "
+    , ppTitleSanitize   = xmobarStrip
+    , ppCurrent         = white . xmobarBorder "Top" "#89b4fa" 1
+    , ppHidden          = white
+    , ppUrgent          = red . wrap (yellow "!") (yellow "!")
+    , ppOrder           = \[ws, l, _, wins] -> [ws]
+    , ppExtras          = [logTitles formatFocused formatUnfocused]
+    }
+  where
+    formatFocused   = wrap (white    "[") (white    "]") . magenta . ppWindow
+    formatUnfocused = wrap (lowWhite "[") (lowWhite "]") . blue    . ppWindow
+
+    -- | Windows should have *some* title, which should not not exceed a
+    -- sane length.
+    ppWindow :: String -> String
+    ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
+
+    blue, lowWhite, magenta, red, white, yellow :: String -> String
+    magenta  = xmobarColor "#ff79c6" ""
+    blue     = xmobarColor "#89b4fa" ""
+    white    = xmobarColor "#bac2de" ""
+    yellow   = xmobarColor "#f1fa8c" ""
+    red      = xmobarColor "#ff5555" ""
+    lowWhite = xmobarColor "#bbbbbb" ""
 
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
@@ -312,7 +353,7 @@ defaults = def {
         mouseBindings      = myMouseBindings,
 
       -- hooks, layouts
-        layoutHook         = lessBorders Screen $ toggleLayouts Full $ myLayout,
+        layoutHook         = myLayout,
         manageHook         = myManageHook,
         handleEventHook    = myEventHook,
         logHook            = myLogHook,
