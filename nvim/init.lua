@@ -1,3 +1,5 @@
+if not vim.g.vscode then
+
 -- Keybinds
 require("binds")
 
@@ -11,7 +13,8 @@ require("catppuccin").setup {
     transparent_background = true,
     lualine = {
         transparent = true,
-    }
+    },
+    no_italic = true,
 }
 vim.cmd.colorscheme("catppuccin")
 
@@ -43,7 +46,7 @@ require("nvim-treesitter.configs").setup {
     },
     indent = {
         enable = true
-    }
+    },
 }
 
 -- Autopair
@@ -70,3 +73,5 @@ vim.opt.mouse = "a"
 vim.opt.splitright = true
 vim.opt.showmode = false
 vim.opt.scrolloff = 8
+
+end
