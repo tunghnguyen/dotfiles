@@ -83,7 +83,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_x     ), spawn "xset s activate")
 
     -- toggle audio
-    , ((0, xF86XK_AudioMute	     ), spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle"    )
+    , ((0, xF86XK_AudioMute      ), spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle"    )
 
     -- lower volume
     , ((0, xF86XK_AudioLowerVolume   ), spawn "pactl set-sink-volume @DEFAULT_SINK@ -1%"     )
@@ -113,7 +113,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
 
     -- Set window to full screen
-    , ((modm,		        xK_f     ), sendMessage ToggleLayout)
+    , ((modm,               xK_f     ), sendMessage ToggleLayout)
 
     -- Resize viewed windows to the correct size
     , ((modm,               xK_n     ), refresh)
@@ -285,13 +285,13 @@ myLogHook = return ()
 --
 -- By default, do nothing.
 myStartupHook = do
-	spawnOnce "picom"
-	spawnOnce "xset s 300 5"
-	spawnOnce "xss-lock -n /usr/lib/xsecurelock/dimmer -l -- xsecurelock"
-	spawnOnce "~/.fehbg"
-	spawnOnce "xbanish"
-	spawnOnce "easyeffects --gapplication-service"
-	setDefaultCursor xC_left_ptr
+    spawnOnce "picom"
+    spawnOnce "xset s 300 5"
+    spawnOnce "xss-lock -n /usr/lib/xsecurelock/dimmer -l -- xsecurelock"
+    spawnOnce "~/.fehbg"
+    spawnOnce "xbanish"
+    spawnOnce "easyeffects --gapplication-service"
+    setDefaultCursor xC_left_ptr
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
