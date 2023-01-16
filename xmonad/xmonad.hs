@@ -288,6 +288,7 @@ myStartupHook = do
     spawnOnce "picom"
     spawnOnce "xset s 300 5"
     spawnOnce "xss-lock -n /usr/lib/xsecurelock/dimmer -l -- xsecurelock"
+    spawnOnce "rclone --vfs-cache-mode writes mount onedrive: ~/OneDrive"
     spawnOnce "~/.fehbg"
     spawnOnce "xbanish"
     spawnOnce "easyeffects --gapplication-service"
