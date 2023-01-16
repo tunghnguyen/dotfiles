@@ -100,6 +100,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- increase brightness
     , ((0, xF86XK_MonBrightnessUp    ), spawn "light -A 1%")
 
+    -- capture screen
+    , ((0, xK_Print                  ), spawn "flameshot gui")
+
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
 
