@@ -17,6 +17,7 @@ import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.Spacing
 import XMonad.Util.Cursor
 import XMonad.Util.Loggers
+import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
 
@@ -28,7 +29,7 @@ import qualified Data.Map        as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "st -e fish"
+myTerminal      = "SHELL=/usr/bin/fish st"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -70,46 +71,49 @@ myFocusedBorderColor = "#89b4fa"
 --
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
-    -- launch a terminal
+    -- Launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
-    -- launch rofi
+    -- Launch rofi
     , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/type-7/launcher.sh")
 
-    -- launch gmrun
+    -- Launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
 
-    -- lock screen
+    -- Lock screen
     , ((modm .|. shiftMask, xK_x     ), spawn "xset s activate")
 
-    -- toggle audio
-    , ((0, xF86XK_AudioMute      ), spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle"    )
+    -- Toggle audio
+    , ((0, xF86XK_AudioMute          ), spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle"    )
 
-    -- lower volume
+    -- Lower volume
     , ((0, xF86XK_AudioLowerVolume   ), spawn "pactl set-sink-volume @DEFAULT_SINK@ -1%"     )
 
-    -- raise volume
+    -- Raise volume
     , ((0, xF86XK_AudioRaiseVolume   ), spawn "pactl set-sink-volume @DEFAULT_SINK@ +1%"     )
 
-    -- toggle microphone
+    -- Toggle microphone
     , ((0, xF86XK_AudioMicMute       ), spawn "pactl set-source-mute @DEFAULT_SOURCE@ toggle")
 
-    -- decrease brightness
+    -- Decrease brightness
     , ((0, xF86XK_MonBrightnessDown  ), spawn "light -U 1%")
 
-    -- increase brightness
+    -- Increase brightness
     , ((0, xF86XK_MonBrightnessUp    ), spawn "light -A 1%")
 
-    -- capture screen
+    -- Capture screen
     , ((0, xK_Print                  ), spawn "flameshot gui")
 
-    -- close focused window
+    -- Close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
 
-     -- Rotate through the available layout algorithms
+    -- Open the default terminal in a scratchpad 
+    , ((modm,               xK_s     ), namedScratchpadAction myScratchpads "scratchpad")
+
+    -- Rotate through the available layout algorithms
     , ((modm,               xK_space ), sendMessage NextLayout)
 
-    --  Reset the layouts on the current workspace to default
+    -- Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
 
     -- Set window to full screen
@@ -237,6 +241,15 @@ myLayout = lessBorders Screen $ toggleLayouts Full (mySpacing $ tiled ||| Mirror
      delta   = 3/100
 
 ------------------------------------------------------------------------
+-- Scratchpads:
+--
+myScratchpads = [ NS "scratchpad" spawnTerm findTerm manageTerm]
+  where
+    spawnTerm  = myTerminal ++ " -n scratchpad"
+    findTerm   = appName =? "scratchpad"
+    manageTerm = customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3)
+
+------------------------------------------------------------------------
 -- Window rules:
 
 -- Execute arbitrary actions and WindowSet manipulations when managing
@@ -255,7 +268,8 @@ myManageHook = composeAll
     [ className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
-    , resource  =? "kdesktop"       --> doIgnore ]
+    , resource  =? "kdesktop"       --> doIgnore
+    ] <+> namedScratchpadManageHook myScratchpads
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -309,7 +323,7 @@ main = xmonad
 -- Configure xmobar
 --
 myXmobarPP :: PP
-myXmobarPP = def
+myXmobarPP = filterOutWsPP [scratchpadWorkspaceTag] def
     { ppSep             = magenta " • "
     , ppTitleSanitize   = xmobarStrip
     , ppCurrent         = white . xmobarBorder "Top" "#89b4fa" 1
