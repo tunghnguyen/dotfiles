@@ -327,6 +327,7 @@ myXmobarPP = filterOutWsPP [scratchpadWorkspaceTag] def
     { ppSep             = magenta " • "
     , ppTitleSanitize   = xmobarStrip
     , ppCurrent         = white . xmobarBorder "Top" "#89b4fa" 1
+    , ppVisible         = white . xmobarBorder "Top" "#45475a" 1
     , ppHidden          = white
     , ppUrgent          = red . wrap (yellow "!") (yellow "!")
     , ppOrder           = \[ws, l, _, wins] -> [ws]
