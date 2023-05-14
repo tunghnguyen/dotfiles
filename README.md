@@ -1,1 +1,1 @@
-# Mediocre dotfiles
+# Dotfiles
