@@ -5,6 +5,10 @@
 import XMonad
 import Data.Monoid
 import System.Exit
+import XMonad.Actions.CopyWindow(copy)
+import XMonad.Actions.CycleWS
+import XMonad.Actions.DynamicWorkspaces
+import XMonad.Actions.UpdatePointer
 import XMonad.Hooks.DynamicIcons
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
@@ -29,7 +33,7 @@ import qualified Data.Map        as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "SHELL=/usr/bin/fish st"
+myTerminal      = "alacritty"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -63,8 +67,12 @@ myWorkspaces    = [ " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 ", " 9 
 
 -- Border colors for unfocused and focused windows, respectively.
 --
+
+--myNormalBorderColor  = "#45475a"
+--myFocusedBorderColor = "#89b4fa"
+
 myNormalBorderColor  = "#45475a"
-myFocusedBorderColor = "#89b4fa"
+myFocusedBorderColor = "#000000"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -75,13 +83,16 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
     -- Launch rofi
-    , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/type-7/launcher.sh")
+    , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/type-4/launcher.sh")
 
     -- Launch gmrun
     , ((modm .|. shiftMask, xK_p     ), spawn "gmrun")
 
     -- Lock screen
-    , ((modm .|. shiftMask, xK_x     ), spawn "xset s activate")
+    , ((modm .|. shiftMask, xK_l     ), spawn "xset s activate")
+
+    -- Suspend
+    , ((modm .|. shiftMask, xK_z     ), spawn "systemctl suspend")
 
     -- Toggle audio
     , ((0, xF86XK_AudioMute          ), spawn "pactl set-sink-mute @DEFAULT_SINK@ toggle"    )
@@ -107,11 +118,17 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
 
-    -- Open the default terminal in a scratchpad 
-    , ((modm,               xK_s     ), namedScratchpadAction myScratchpads "scratchpad")
+    -- Open Emacs
+    , ((modm .|. shiftMask, xK_s     ), spawn "emacsclient -c -a 'emacs'")
 
+    -- Open the default terminal in a scratchpad 
+    , ((modm,               xK_s     ), namedScratchpadAction myScratchpads "term")
+    
     -- Rotate through the available layout algorithms
     , ((modm,               xK_space ), sendMessage NextLayout)
+
+    -- Toggle previous workspace
+    , ((modm,               xK_0     ), toggleWS)
 
     -- Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
@@ -178,7 +195,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     --
     -- mod-[1..9], Switch to workspace N
     -- mod-shift-[1..9], Move client to workspace N
-    --
     [((m .|. modm, k), windows $ f i)
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
@@ -226,7 +242,8 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 myLayout = lessBorders Screen $ toggleLayouts Full (mySpacing $ tiled ||| Mirror tiled)
   where
      -- custom spacing   
-     mySpacing = spacingRaw False (Border 0 0 3 3) True (Border 0 6 3 3) True
+     --mySpacing = spacingRaw True (Border 0 0 3 3) True (Border 0 6 3 3) True
+     mySpacing = spacingRaw True (Border 4 3 3 3) True (Border 3 3 3 3) True
 
      -- default tiling algorithm partitions the screen into two panes
      tiled   = Tall nmaster delta ratio
@@ -241,13 +258,13 @@ myLayout = lessBorders Screen $ toggleLayouts Full (mySpacing $ tiled ||| Mirror
      delta   = 3/100
 
 ------------------------------------------------------------------------
--- Scratchpads:
---
-myScratchpads = [ NS "scratchpad" spawnTerm findTerm manageTerm]
+--Scratchpads:
+
+myScratchpads = [ NS "term" spawnTerm findTerm manageScratch ]
   where
-    spawnTerm  = myTerminal ++ " -n scratchpad"
-    findTerm   = appName =? "scratchpad"
-    manageTerm = customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3)
+    spawnTerm  = myTerminal ++ " -t scratchpad -e tmux"
+    findTerm   = title =? "scratchpad"
+    manageScratch = customFloating $ W.RationalRect (3/14) (3/14) (4/7) (4/7)
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -265,12 +282,13 @@ myScratchpads = [ NS "scratchpad" spawnTerm findTerm manageTerm]
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "MPlayer"        --> doFloat
-    , className =? "Gimp"           --> doFloat
+    [ className =? "mpv"            --> doFloat
+    , className =? "dolphin"        --> doFloat
+    , className =? "yakuake"        --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
     ] <+> namedScratchpadManageHook myScratchpads
-
+ 
 ------------------------------------------------------------------------
 -- Event handling
 
@@ -280,7 +298,7 @@ myManageHook = composeAll
 -- return (All True) if the default handler is to be run afterwards. To
 -- combine event hooks use mappend or mconcat from Data.Monoid.
 --
-myEventHook = swallowEventHook (className =? "st-256color") (return True)
+myEventHook = swallowEventHook (className =? "alacritty") (return True)
 
 ------------------------------------------------------------------------
 -- Status bars and logging
@@ -288,7 +306,7 @@ myEventHook = swallowEventHook (className =? "st-256color") (return True)
 -- Perform an arbitrary action on each internal state change or X event.
 -- See the 'XMonad.Hooks.DynamicLog' extension for examples.
 --et-sink-mute @
-myLogHook = return ()
+myLogHook = updatePointer (0.5, 0.5) (0, 0)
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -303,9 +321,12 @@ myStartupHook = do
     spawnOnce "xset s 300 5"
     spawnOnce "xss-lock -n /usr/lib/xsecurelock/dimmer -l -- xsecurelock"
     spawnOnce "rclone --vfs-cache-mode writes mount onedrive: ~/OneDrive"
+    spawnOnce "easyeffects --gapplication-service"
+    spawnOnce "autorandr --change"
+    spawnOnce "emacs --daemon"
     spawnOnce "~/.fehbg"
     spawnOnce "xbanish"
-    spawnOnce "easyeffects --gapplication-service"
+    --spawnOnce "fcitx5 -d"
     setDefaultCursor xC_left_ptr
 
 ------------------------------------------------------------------------
@@ -326,7 +347,7 @@ myXmobarPP :: PP
 myXmobarPP = filterOutWsPP [scratchpadWorkspaceTag] def
     { ppSep             = magenta " • "
     , ppTitleSanitize   = xmobarStrip
-    , ppCurrent         = white . xmobarBorder "Top" "#89b4fa" 1
+    , ppCurrent         = white . xmobarBorder "Top" "#cba6f7" 1
     , ppVisible         = white . xmobarBorder "Top" "#45475a" 1
     , ppHidden          = white
     , ppUrgent          = red . wrap (yellow "!") (yellow "!")
@@ -342,10 +363,11 @@ myXmobarPP = filterOutWsPP [scratchpadWorkspaceTag] def
     ppWindow :: String -> String
     ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
 
-    blue, lowWhite, magenta, red, white, yellow :: String -> String
+    blue, lowWhite, magenta, red, white, gray, yellow :: String -> String
     magenta  = xmobarColor "#ff79c6" ""
     blue     = xmobarColor "#89b4fa" ""
-    white    = xmobarColor "#bac2de" ""
+    white    = xmobarColor "#cdd6f4" ""
+    gray     = xmobarColor "#45475a" ""
     yellow   = xmobarColor "#f1fa8c" ""
     red      = xmobarColor "#ff5555" ""
     lowWhite = xmobarColor "#bbbbbb" ""

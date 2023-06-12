@@ -4,7 +4,7 @@ Config {
      font =         "xft:Fira Code:pixelsize=14:bold:antialias=true"
    , bgColor =      "#000000"
    , fgColor =      "#CDD6F4"
-   , alpha =	    0
+   , alpha =        0
    , position =     Top
 
    -- layout
@@ -47,21 +47,22 @@ Config {
 
             , "--" -- battery specific options
                 -- discharging status
-                , "-o"	, "<left>% (<timeleft>)"
+                , "-o"  , "<left>% (<timeleft>)"
                 -- AC "on" status
-                , "-O"	, "<fc=#F9E2AF>Charging</fc>"
+                , "-O"  , "<fc=#F9E2AF>Charging</fc>"
                 -- charged status
-                , "-i"	, "<fc=#A6E3A1>Charged</fc>"
+                , "-i"  , "<fc=#A6E3A1>Charged</fc>"
             ] 50
       
         -- time and date indicator 
         --   (%F = y-m-d date, %R = h:m time)
-        , Run Date           "<fc=#FFFFFF>%F %R</fc>" "date" 50
+        , Run Date           "<fc=#CDD6F4>%F %R</fc>" "date" 50
 
         -- keyboard layout indicator
-        , Run Kbd            [ ("us(dvorak)" , "<fc=#89B4FA>DV</fc>")
-                             , ("us"         , "<fc=#F38BA8>US</fc>")
-                             ]
+        , Run Kbd            
+            [ ("us(dvorak)" , "<fc=#89B4FA>DV</fc>")
+            , ("us"         , "<fc=#F38BA8>US</fc>")
+            ]
 
         -- talk with xmonad
         , Run XMonadLog

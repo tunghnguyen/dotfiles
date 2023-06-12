@@ -1,5 +1,3 @@
-if not vim.g.vscode then
-
 -- Keybinds
 require("binds")
 
@@ -38,7 +36,7 @@ require("lualine").setup {
 -- Syntax highlighting
 require("nvim-treesitter.configs").setup {
     ensure_installed = { 
-        "c", "cpp", "make", "cmake", "lua", "rust", "python", "haskell", "toml"
+        "c", "cpp", "make", "cmake", "lua", "rust", "python", "haskell", "toml", "bash"
     },
     sync_install = true,
     highlight = {
@@ -74,4 +72,3 @@ vim.opt.splitright = true
 vim.opt.showmode = false
 vim.opt.scrolloff = 8
 
-end
